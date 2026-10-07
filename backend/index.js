@@ -29,7 +29,10 @@ wss.on('connection', function connection(ws) {
         } catch (error) {
             // Handle cases where the message is not a valid JSON
             console.log("The received message is not a valid JSON.");
-            ws.send(JSON.stringify({ error: "Invalid JSON format" }));
+            ws.send(JSON.stringify({
+                type: "error",
+                message: "Invalid JSON format."
+            }));
             return;
         }
 

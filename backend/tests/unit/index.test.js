@@ -124,9 +124,7 @@ describe("invalid requests", () => {
         expect(client.lastMessage()).toEqual({ type: "error", message: "Unknown service." });
     });
 
-    // Known bug: when JSON.parse fails, `request` stays undefined and `request.action` throws,
-    // which crashes the server. Remove `.fails` once index.js handles it.
-    it.fails("replies with an error instead of crashing on a message that is not JSON", async () => {
+    it("replies with an error instead of crashing on a message that is not JSON", async () => {
         const client = connectClient();
 
         await expect(client.sendToServer("not json")).resolves.toBeUndefined();

@@ -29,10 +29,7 @@ describe("getAllServices", () => {
         expect(services[0]).toEqual(new Service(1, "Shipping", "S", 10));
     });
 
-    // Known bug: after reject(err), dao.js keeps going and calls `rows.map` with `rows` undefined.
-    // The TypeError is thrown inside the sqlite callback, so it can't be caught and would crash the server.
-    // Skipped because that uncaught error also makes the whole test run fail. Unskip once dao.js returns after reject.
-    it.skip("rejects when the query fails", async () => {
+    it("rejects when the query fails", async () => {
         // Make the query fail by hiding the table, then put it back
         await testDb.exec("ALTER TABLE services RENAME TO services_hidden");
         try {
@@ -47,7 +44,7 @@ describe("newTicket", () => {
     it("returns the ticket code and the issue timestamp", async () => {
         const ticket = await dao.newTicket(1, "S");
 
-        // The code is the service tag followed by a number, e.g. "S1"
+        // The code is the service tag followed by a number, e.g. "S001"
         expect(ticket.code).toMatch(/^S\d+$/);
         expect(new Date(ticket.timestamp).toISOString()).toBe(ticket.timestamp);
     });
@@ -57,10 +54,10 @@ describe("newTicket", () => {
 
         const rows = await testDb.all("SELECT * FROM tickets");
         expect(rows).toHaveLength(1);
-        // The returned code is the tag followed by the id of the saved row
-        expect(ticket.code).toBe(`D${rows[0].tId}`);
+        // The code is the tag followed by the number of the ticket for that service today
+        expect(ticket.code).toBe("D001");
         expect(rows[0]).toMatchObject({
-            code: "D",
+            code: "D001",
             sId: 3,
             issued_at: ticket.timestamp,
             status: "waiting",
@@ -69,9 +66,7 @@ describe("newTicket", () => {
         });
     });
 
-    // Known bug: SQLite doesn't enforce foreign keys unless `PRAGMA foreign_keys = ON` is run on the connection,
-    // so a ticket for a service that doesn't exist is saved. Remove `.fails` once dao.js enables it.
-    it.fails("rejects when the service does not exist", async () => {
+    it("rejects when the service does not exist", async () => {
         await expect(dao.newTicket(99, "X")).rejects.toThrow(/FOREIGN KEY/);
 
         const rows = await testDb.all("SELECT * FROM tickets");
