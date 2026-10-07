@@ -2,7 +2,7 @@ import sqlite from "sqlite3";
 import { Service } from "./models.js";
 import dayjs from "dayjs";
 
-const db = new sqlite.Database("db.sqlite", (err) => {
+const db = new sqlite.Database(process.env.DB_PATH ?? "db.sqlite", (err) => {
     if (err) throw err;
 })
 
