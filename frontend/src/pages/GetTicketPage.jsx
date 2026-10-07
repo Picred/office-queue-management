@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Container, Row, Col, Button, Card, Alert } from 'react-bootstrap';
 import { getServices, createTicket } from "../API/api";
 
 
@@ -34,7 +35,7 @@ function GetTicketPage() {
     }
 
     return (
-        <div className="container py-5">
+        <Container className="py-5">
             {!ticket ? (
                 <>
                     <h1 className="text-center mb-3">Get a Ticket</h1>
@@ -44,31 +45,31 @@ function GetTicketPage() {
                     </p>
 
                     {error && (
-                        <div className="alert alert-danger text-center" role="alert">
+                        <Alert variant="danger" className="text-center">
                             {error}
-                        </div>
+                        </Alert>
                     )}
 
-                    <div className="row g-4 justify-content-center">
+                    <Row className="g-4 justify-content-center">
                         {services.map((service) => (
-                            <div className="col-12 col-md-6" key={service.sId}>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary w-100 py-5 fs-4"
+                            <Col xs={12} md={6} key={service.sId}>
+                                <Button
+                                    variant="primary"
+                                    className="w-100 py-5 fs-4"
                                     onClick={() => handleServiceSelection(service)}
                                 >
                                     {service.name}
-                                </button>
-                            </div>
+                                </Button>
+                            </Col>
                         ))}
-                    </div>
+                    </Row>
                 </>
             ) : (
                 <div className="text-center">
                     <h1 className="mb-4">Your Ticket</h1>
 
-                    <div className="card mx-auto" style={{ maxWidth: '500px' }}>
-                        <div className="card-body p-5">
+                    <Card className="mx-auto" style={{ maxWidth: '500px' }}>
+                        <Card.Body className="p-5">
                             <h2 className="display-1 fw-bold mb-3">
                                 {ticket.code}
                             </h2>
@@ -81,18 +82,17 @@ function GetTicketPage() {
                                 Issued at {new Date(ticket.timestamp).toLocaleTimeString()}
                             </p>
 
-                            <button
-                                type="button"
-                                className="btn btn-outline-primary"
+                            <Button
+                                variant="outline-primary"
                                 onClick={() => setTicket(null)}
                             >
                                 Get another ticket
-                            </button>
-                        </div>
-                    </div>
+                            </Button>
+                        </Card.Body>
+                    </Card>
                 </div>
             )}
-        </div>
+        </Container>
     );
 }
 
