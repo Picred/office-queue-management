@@ -12,7 +12,7 @@ wss.on('connection', function connection(ws) {
     // Send a message when it connects
     ws.send(JSON.stringify({
         type: "benvenuto",
-        text: "Benvenuto nel server WebSocket locale!"
+        text: "Welcome to the local WebSocket!"
     }));
 
 

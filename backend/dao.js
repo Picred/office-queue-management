@@ -8,9 +8,9 @@ const db = new sqlite.Database("db.sqlite", (err) => {
 
 db.run("PRAGMA foreign_keys = ON;", (err) => {
     if (err) {
-        console.error("Errore nell'attivare le foreign keys:", err);
+        console.error("Error in foreign keys activation", err);
     } else {
-        console.log("Foreign keys attivate con successo!");
+        console.log("Successful foreign keys activatiom");
     }
 });
 
