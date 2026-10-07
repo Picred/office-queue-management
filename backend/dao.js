@@ -72,3 +72,21 @@ export const getQueuesByCounter = (cId) => {
     });
   });
 };
+
+export const updateTicket = (ticketId, counterId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            UPDATE tickets
+            SET status = 'processing', cId = ?
+            WHERE tId = ? AND status = 'waiting'
+        `;
+
+        db.run(sql, [counterId, ticketId], function (err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.changes === 1);
+            }
+        });
+    });
+};
