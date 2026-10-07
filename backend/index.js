@@ -58,6 +58,28 @@ wss.on('connection', function connection(ws) {
                 const service_id = request.sId
                 const tag = request.tag
 
+                const services = await getAllServices();
+
+                let correct = false
+
+                services.forEach(s => {
+                    if(s.sId === service_id && s.tag == tag){
+                        correct = true
+                    }
+                });
+
+                
+                if(!correct){
+                    console.error("Service ID and tag don't match")
+
+                    ws.send(JSON.stringify({
+                    type: "error",
+                    message: "Service ID and tag don't match."
+
+                }));
+                }
+                else{
+
                 const ticket_info = await newTicket(service_id, tag)
 
 
@@ -65,6 +87,7 @@ wss.on('connection', function connection(ws) {
                     type: "new_ticket",
                     data: ticket_info
                 }))
+            }
 
             }
             catch (dbError) {
