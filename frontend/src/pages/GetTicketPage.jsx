@@ -1,24 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getServices, createTicket } from "../API/api";
 
-const services = [
-    { sId: 1, name: 'Shipping' },
-    { sId: 2, name: 'Accounts management' },
-    { sId: 3, name: 'Deposits' },
-    { sId: 4, name: 'Payments' }
-];
 
 function GetTicketPage() {
     const [ticket, setTicket] = useState(null);
+    const [services, setServices] = useState([]);
+    const [error, setError] = useState("");
 
-    const handleServiceSelection = (service) => {
-        const newTicket = {
-            code: `${service.name.charAt(0)}001`,
-            serviceName: service.name,
-            timestamp: new Date()
-        };
+    useEffect(() => {
+        async function loadServices() {
+            try {
+                const data = await getServices();
+                setServices(data);
+            } catch (err) {
+                setError(err.message);
+            }
+        }
 
-        setTicket(newTicket);
-    };
+        loadServices();
+    }, []);
+
+    async function handleServiceSelection(service) {
+        try {
+            const data = await createTicket(service.sId, service.tag);
+
+            setTicket({
+                ...data,
+                serviceName: service.name
+            });
+        } catch (err) {
+            setError(err.message);
+        }
+    }
 
     return (
         <div className="container py-5">
@@ -29,6 +42,12 @@ function GetTicketPage() {
                     <p className="text-center text-secondary mb-5">
                         Select the service you need
                     </p>
+
+                    {error && (
+                        <div className="alert alert-danger text-center" role="alert">
+                            {error}
+                        </div>
+                    )}
 
                     <div className="row g-4 justify-content-center">
                         {services.map((service) => (
@@ -59,7 +78,7 @@ function GetTicketPage() {
                             </p>
 
                             <p className="text-secondary mb-4">
-                                Issued at {ticket.timestamp.toLocaleTimeString()}
+                                Issued at {new Date(ticket.timestamp).toLocaleTimeString()}
                             </p>
 
                             <button
