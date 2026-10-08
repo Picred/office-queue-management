@@ -49,7 +49,12 @@ export const createTestDb = () => {
         new Promise((resolve, reject) => db.close((err) => (err ? reject(err) : resolve())));
     const remove = async () => {
         await close();
-        fs.rmSync(path.dirname(dbPath), { recursive: true, force: true });
+        try {
+            fs.rmSync(path.dirname(dbPath), { recursive: true, force: true });
+        } catch {
+            // On Windows the file can't be deleted while dao.js still has its own connection open
+            // (it is closed only when the test process ends): leave it in the temp dir
+        }
     };
 
     return { dbPath, init: () => exec(SCHEMA), exec, all, remove };
