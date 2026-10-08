@@ -2,7 +2,7 @@ import { describe, it, expect, afterAll } from 'vitest';
 import { WebSocket } from 'ws';
 
 
-import '../../index.js'; 
+import '../../index.js';
 
 describe('WebSocket Integration Tests', () => {
     let activeClient;
@@ -21,7 +21,7 @@ describe('WebSocket Integration Tests', () => {
 
             activeClient.on('message', (data) => {
                 const message = JSON.parse(data.toString());
-                
+
                 // Il server invia un messaggio di benvenuto appena ci si connette
                 if (message.type === 'benvenuto') {
                     expect(message.text).toBe("Welcome to the local WebSocket!");
@@ -51,7 +51,7 @@ describe('WebSocket Integration Tests', () => {
                 if (response.type === 'services_list') {
                     expect(response).toHaveProperty('data');
                     expect(Array.isArray(response.data)).toBe(true);
-                    
+
                     client.close();
                     resolve();
                 }
@@ -70,7 +70,7 @@ describe('WebSocket Integration Tests', () => {
 
             client.on('open', () => {
                 // Ticket request for Shipping service (sId: 1, tag: 'S')
-                client.send(JSON.stringify({ 
+                client.send(JSON.stringify({
                     action: "new_ticket",
                     sId: 1,
                     tag: "S"
@@ -93,13 +93,52 @@ describe('WebSocket Integration Tests', () => {
                         // Check if the data contains a timestamp and code
                         expect(response.data).toHaveProperty('timestamp');
                         expect(response.data).toHaveProperty('code');
-                        
+
                         client.close();
                         resolve();
                     } catch (error) {
                         client.close();
                         reject(error);
                     }
+                }
+            });
+
+            client.on('error', (err) => {
+                client.close();
+                reject(err);
+            });
+        });
+    });
+
+    it('Create new ticket test - Invalid service or tag', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000');
+
+            client.on('open', () => {
+                // Ticket request with wrong tag
+                client.send(JSON.stringify({
+                    action: "new_ticket",
+                    sId: 1,
+                    tag: "adadada"
+                }));
+            });
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString());
+
+                // Expect an error response
+                if (response.type === 'error') {
+                    try {
+                        expect(response.message).toBe("Service ID and tag don't match.");
+                        client.close();
+                        resolve();
+                    } catch (error) {
+                        client.close();
+                        reject(error);
+                    }
+                } else if (response.type === 'new_ticket') {
+                    client.close();
+                    reject(new Error("Expected an error but got a new ticket instead."));
                 }
             });
 
