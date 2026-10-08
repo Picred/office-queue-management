@@ -7,10 +7,12 @@ import '../../index.js';
 describe('WebSocket Integration Tests', () => {
     let activeClient;
 
-    afterAll(() => {
+    afterAll(async () => {
         if (activeClient && activeClient.readyState === WebSocket.OPEN) {
             activeClient.close();
         }
+        // Wait a bit for any pending server console logs to finish before tearing down
+        await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     it('Connection start test', async () => {
@@ -52,6 +54,52 @@ describe('WebSocket Integration Tests', () => {
                     
                     client.close();
                     resolve();
+                }
+            });
+
+            client.on('error', (err) => {
+                client.close();
+                reject(err);
+            });
+        });
+    });
+
+    it('Create new ticket test', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000');
+
+            client.on('open', () => {
+                // Ticket request for Shipping service (sId: 1, tag: 'S')
+                client.send(JSON.stringify({ 
+                    action: "new_ticket",
+                    sId: 1,
+                    tag: "S"
+                }));
+            });
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString());
+
+                if (response.type === 'error') {
+                    client.close();
+                    reject(new Error(response.message));
+                }
+
+                // wait for new_ticket response
+                if (response.type === 'new_ticket') {
+                    try {
+                        // Check if the response contains data
+                        expect(response).toHaveProperty('data');
+                        // Check if the data contains a timestamp and code
+                        expect(response.data).toHaveProperty('timestamp');
+                        expect(response.data).toHaveProperty('code');
+                        
+                        client.close();
+                        resolve();
+                    } catch (error) {
+                        client.close();
+                        reject(error);
+                    }
                 }
             });
 
