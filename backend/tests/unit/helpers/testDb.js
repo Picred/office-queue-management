@@ -18,6 +18,12 @@ CREATE TABLE counters (
   name TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE counter_services (
+  cId INTEGER NOT NULL REFERENCES counters(cId),
+  sId INTEGER NOT NULL REFERENCES services(sId),
+  PRIMARY KEY (cId, sId)
+);
+
 CREATE TABLE tickets (
   tId        INTEGER PRIMARY KEY AUTOINCREMENT,
   code       TEXT NOT NULL,
@@ -34,6 +40,15 @@ INSERT INTO services(sId, name, tag, service_time) VALUES
   (2, 'Accounts management', 'A', 8),
   (3, 'Deposits',            'D', 5),
   (4, 'Payments',            'P', 4);
+
+INSERT INTO counters(cId, name) VALUES
+  (1, 'Counter 1'), (2, 'Counter 2'), (3, 'Counter 3'), (4, 'Counter 4');
+ 
+INSERT INTO counter_services(cId, sId) VALUES
+  (1, 1), (1, 2),
+  (2, 3), (2, 1),
+  (3, 3), (3, 4),
+  (4, 2), (4, 4), (4, 3);  
 `;
 
 // Creates a fresh database file in the OS temp dir and returns a handle to query it from the tests
