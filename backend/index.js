@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { getAllServices, newTicket } from './dao.js';
+import { getNextTicket } from './queue-logic.js';
 
 // Run websocket on port 3000
 const wss = new WebSocketServer({ port: 3000 });
@@ -100,6 +101,43 @@ wss.on('connection', function connection(ws) {
             }
         }
 
+        else if (request.action === "next_ticket") {
+            try {
+                const cId = request.cId
+ 
+                // TODO (authentication): cId should come from the logged-in counter,
+                // not from the message, otherwise any client can call tickets for any counter
+                if(!Number.isInteger(cId)){
+                    console.error("Invalid counter id")
+ 
+                    ws.send(JSON.stringify({
+                        type: "error",
+                        message: "Invalid counter id."
+                    }));
+                }
+                else{
+ 
+                    // { tId, code, serviceName } or null if all the queues are empty
+                    const ticket_info = await getNextTicket(cId)
+ 
+ 
+                    ws.send(JSON.stringify({
+                        type: "next_ticket",
+                        data: ticket_info
+                    }))
+                }
+ 
+            }
+            catch (dbError) {
+                console.error("Error while calling the next ticket:", dbError);
+ 
+                ws.send(JSON.stringify({
+                    type: "error",
+                    message: "Failed to call the next ticket."
+                }));
+            }
+        }
+ 
         else {
             ws.send(JSON.stringify({
                 type: "error",
