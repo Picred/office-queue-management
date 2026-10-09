@@ -22,7 +22,7 @@ describe('WebSocket Integration Tests', () => {
             activeClient.on('message', (data) => {
                 const message = JSON.parse(data.toString());
 
-                // Il server invia un messaggio di benvenuto appena ci si connette
+                // The server sends a welcome message when it connects
                 if (message.type === 'benvenuto') {
                     expect(message.text).toBe("Welcome to the local WebSocket!");
                     resolve();
@@ -148,5 +148,80 @@ describe('WebSocket Integration Tests', () => {
             });
         });
     });
+
+    it('Invalid JSON format test', async () =>{
+        return new Promise((resolve,reject)=> {
+            const client = new WebSocket('ws://localhost:3000')
+            
+            client.on('open', () =>{
+                client.send("invalid json")
+            })
+            
+            client.on('message', (data)=> {
+                const response = JSON.parse(data.toString())
+
+               if (response.type === 'benvenuto') return;
+
+                if(response.type === 'error'){
+                    try{
+                    expect(response.message).toBe("Invalid JSON format.")
+                    client.close()
+                    resolve()
+                    }
+                    catch(error){
+                        client.close()
+                        reject(error)
+                    }
+                }
+                else{
+                    client.close()
+                    reject("Expected an error, error not found")
+                }
+                
+            })
+            client.on("error", (err) =>{
+                client.close()
+                reject(err)
+            })
+        })
+    })
+
+
+    it('Unknown service test', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000')
+
+            client.on('open', () => {
+                client.send(JSON.stringify({ "action": "invalid_service_name" }))
+            })
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString())
+
+                if (response.type === 'benvenuto') return;
+
+
+                if (response.type === "error") {
+                    try {
+                        expect(response.message).toBe("Unknown service.")
+                        client.close()
+                        resolve()
+                    }
+                    catch (error) {
+                        client.close()
+                        reject(error)
+                    }
+                }
+                else{
+                    client.close()
+                    reject("Expected an error, error not found")
+                }
+            })
+            client.on("error", (err) =>{
+                client.close()
+                reject(err)
+            })
+        })
+    })
 
 });
