@@ -2,9 +2,17 @@ import sqlite from "sqlite3";
 import { Service, Ticket, Queue } from "./models.js";
 import dayjs from "dayjs";
 
-const db = new sqlite.Database("db.sqlite", (err) => {
+const db = new sqlite.Database(process.env.DB_PATH ?? "db.sqlite", (err) => {
     if (err) throw err;
 })
+
+db.run("PRAGMA foreign_keys = ON;", (err) => {
+    if (err) {
+        console.error("Error in foreign keys activation", err);
+    } else {
+        console.log("Successful foreign keys activatiom");
+    }
+});
 
 
 export const getAllServices = () => {
@@ -15,10 +23,10 @@ export const getAllServices = () => {
         `
 
         db.all(sql, [], (err,rows) => {
-            if(err) reject(err);
+            if(err) return reject(err);
 
             const serviceList = rows.map((r)=> new Service(r.sId, r.name, r.tag, r.service_time))
-            resolve(serviceList)
+            return resolve(serviceList)
         })
     })
 }

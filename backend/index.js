@@ -13,7 +13,7 @@ wss.on('connection', function connection(ws) {
     // Send a message when it connects
     ws.send(JSON.stringify({
         type: "benvenuto",
-        text: "Benvenuto nel server WebSocket locale!"
+        text: "Welcome to the local WebSocket!"
     }));
 
 
@@ -30,6 +30,11 @@ wss.on('connection', function connection(ws) {
         } catch (error) {
             // Handle cases where the message is not a valid JSON
             console.log("The received message is not a valid JSON.");
+            ws.send(JSON.stringify({
+                type: "error",
+                message: "Invalid JSON format."
+            }));
+            return;
         }
 
 
