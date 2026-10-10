@@ -1,11 +1,15 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const sqlite = require('sqlite3');
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import sqlite from 'sqlite3';
+import { fileURLToPath } from 'url';
 
-const DB_PATH = path.join(__dirname, 'db.sqlite');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const DB_PATH = process.env.DB_PATH ?? path.join(__dirname, 'db.sqlite');
 
 
 const SERVICES = [
