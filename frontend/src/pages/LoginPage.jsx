@@ -1,12 +1,13 @@
 import { Form, Button, Stack, Card, Spinner, Container, Row, Col } from "react-bootstrap";
 import { useState } from "react";
+import { login } from "../API/api";
 
 /**
  * [Renders a login form.]
  * @returns the login form in order to log into the account.
  */
-export const LoginPage = () => {
-    const [email, setEmail] = useState("");
+export const LoginPage = ({ onLogin }) => {
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
@@ -19,23 +20,15 @@ export const LoginPage = () => {
         setIsLoading(true);
         setNotification("");
 
-        // const user_data = await API.login({ email: email, password: password })
+        try {
+            const user_data = await login({ username: username, password: password });
 
-        // if (user_data.error) {
-        //     setNotification(user_data.error)
-        //     set_is_loading(false);
-        //     return;
-        // }
-
-        // set_user(user_data) // email: email
-
-        // navigate("/");
-
-        setTimeout(() => {
-            setEmail("");
+            onLogin(user_data);
+        } catch (err) {
+            setNotification(err.message);
             setPassword("");
             setIsLoading(false);
-        }, 2000);
+        }
     }
 
 
@@ -47,21 +40,21 @@ export const LoginPage = () => {
                         <Card.Body>
                             <h3 className="text-center fw-bold">Login!</h3>
 
-                            {notification && <p className="rounded p-1 my-4 border text-center fs-5 text- bg-body-secondary">{notification}!</p>}
+                            {notification && <p className="rounded p-1 my-4 border text-center fs-5 text- bg-body-secondary">{notification}</p>}
 
                             <p>Provide your credentials!</p>
 
                             <Form onSubmit={(event) => handlesubmit(event)}>
 
-                                <Form.Group className="mb-3" controlId="formGroupEmail">
-                                    <Form.Label>Email</Form.Label>
+                                <Form.Group className="mb-3" controlId="formGroupUsername">
+                                    <Form.Label>Username</Form.Label>
                                     <Form.Control
-                                        type="email"
+                                        type="text"
                                         minLength={3}
                                         maxLength={50}
-                                        placeholder="name@email.com"
-                                        value={email}
-                                        onChange={event => setEmail(event.target.value)}
+                                        placeholder="counter1"
+                                        value={username}
+                                        onChange={event => setUsername(event.target.value)}
                                         required />
                                 </Form.Group>
 

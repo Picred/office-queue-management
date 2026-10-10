@@ -72,8 +72,7 @@ async function createTicket(sId, tag) {
 
 async function nextTicket(cId) {
     await socketReady
-
-    return new Promise((resolve, reject)=> {
+  return new Promise((resolve, reject)=> {
 
         const handleMessage = (event) => {
             const response = JSON.parse(event.data)
@@ -97,5 +96,48 @@ async function nextTicket(cId) {
     })
 }
 
+// Authentication: REST APIs of the Express server (the session cookie travels with credentials: "include")
+const API_URL = "http://localhost:3001/api";
 
-export { getServices, createTicket, nextTicket };
+async function login(credentials) {
+    const response = await fetch(`${API_URL}/sessions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(credentials)
+    });
+
+    const body = await response.json();
+
+    if (!response.ok) {
+        throw new Error(body.error);
+    }
+
+    return body;
+}
+
+
+// Resolves with the logged in user, or null if nobody is logged in
+async function getUserInfo() {
+    const response = await fetch(`${API_URL}/sessions/current`, {
+        credentials: "include"
+    });
+
+    if (response.status === 401) {
+        return null;
+    }
+
+    return response.json();
+}
+
+
+async function logout() {
+    await fetch(`${API_URL}/sessions/current`, {
+        method: "DELETE",
+        credentials: "include"
+    });
+}
+
+
+export { getServices, createTicket, login, getUserInfo, logout, nextTicket };
+    
