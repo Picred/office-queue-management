@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
+import {BrowserRouter,Routes,Route,Navigate,useNavigate} from 'react-router-dom';
 import GetTicketPage from './pages/GetTicketPage';
 import { LoginPage } from './pages/LoginPage';
 import OfficerPage from './pages/OfficerPage';
 import { getUserInfo, logout } from './API/api';
-import CashierPage from './pages/CashierPage';
-import { useState } from "react";
+
+
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -50,3 +50,12 @@ function AppRoutes() {
   );
 }
 
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
+}
+
+export default App;
