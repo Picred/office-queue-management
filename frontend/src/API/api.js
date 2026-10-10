@@ -70,6 +70,31 @@ async function createTicket(sId, tag) {
     });
 }
 
+async function nextTicket(cId) {
+    await socketReady
+  return new Promise((resolve, reject)=> {
+
+        const handleMessage = (event) => {
+            const response = JSON.parse(event.data)
+
+            if(response.type === "next_ticket"){
+                socket.removeEventListener("message", handleMessage)
+                resolve(response.data);
+            }
+            if(response.type === "error") {
+                socket.removeEventListener("message", handleMessage)
+                reject(new Error(response.message))
+            }
+        }
+
+        socket.addEventListener("message", handleMessage)
+
+        socket.send(JSON.stringify({
+            action: "next_ticket",
+            cId: cId
+        }));
+    })
+}
 
 // Authentication: REST APIs of the Express server (the session cookie travels with credentials: "include")
 const API_URL = "http://localhost:3001/api";
@@ -114,4 +139,5 @@ async function logout() {
 }
 
 
-export { getServices, createTicket, login, getUserInfo, logout };
+export { getServices, createTicket, login, getUserInfo, logout, nextTicket };
+    
