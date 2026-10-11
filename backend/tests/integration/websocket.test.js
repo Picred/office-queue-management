@@ -149,7 +149,7 @@ describe('WebSocket Integration Tests', () => {
         });
     });
 
-    describe('Story 2 - Next Customer', () => {
+    describe('Story 2 Next Customer', () => {
         it('Call next ticket test', async () => {
             return new Promise((resolve, reject) => {
                 const client = new WebSocket('ws://localhost:3000');
@@ -198,6 +198,87 @@ describe('WebSocket Integration Tests', () => {
                             client.close();
                             reject(error);
                         }
+                    }
+                });
+
+                client.on('error', (err) => {
+                    client.close();
+                    reject(err);
+                });
+            });
+        });
+
+        it('Call next ticket test with empty queue', async () => {
+            return new Promise((resolve, reject) => {
+                const client = new WebSocket('ws://localhost:3000');
+
+                client.on('open', () => {
+                    // Counter 3 has no waiting tickets
+                    client.send(JSON.stringify({
+                        action: "next_ticket",
+                        cId: 3
+                    }));
+                });
+
+                client.on('message', (data) => {
+                    const response = JSON.parse(data.toString());
+
+                    if (response.type === 'benvenuto') return;
+
+                    if (response.type === 'error') {
+                        client.close();
+                        reject(new Error(response.message));
+                    }
+
+                    if (response.type === 'next_ticket') {
+                        try {
+                            expect(response).toHaveProperty('data');
+                            expect(response.data).toBeNull();
+                            client.close();
+                            resolve();
+                        } catch (error) {
+                            client.close();
+                            reject(error);
+                        }
+                    }
+                });
+
+                client.on('error', (err) => {
+                    client.close();
+                    reject(err);
+                });
+            });
+        });
+
+        it('Call next ticket test with invalid counter id', async () => {
+            return new Promise((resolve, reject) => {
+                const client = new WebSocket('ws://localhost:3000');
+
+                client.on('open', () => {
+                    // Send an invalid non-integer counter id
+                    client.send(JSON.stringify({
+                        action: "next_ticket",
+                        cId: "invalid_id"
+                    }));
+                });
+
+                client.on('message', (data) => {
+                    const response = JSON.parse(data.toString());
+
+                    if (response.type === 'benvenuto') return;
+
+                    if (response.type === 'error') {
+                        try {
+                            expect(response.message).toBe("Invalid counter id.");
+                            client.close();
+                            resolve();
+                        } catch (error) {
+                            client.close();
+                            reject(error);
+                        }
+                    } else if (response.type === 'next_ticket') {
+                        client.close();
+                        reject(new Error("Expected an error but received a ticket instead."));
                     }
                 });
 
