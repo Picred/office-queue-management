@@ -1,8 +1,25 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { WebSocket } from 'ws';
+import { execFileSync } from 'child_process';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
+// The server runs on a temporary db created by init-db.js, so the tests never write in the dev db
+const dbDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oqm-test-'));
+process.env.DB_PATH = path.join(dbDir, 'test.sqlite');
+execFileSync(process.execPath, ['init-db.js'], { env: process.env });
 
-import '../../index.js';
+// Imported only now, so dao.js opens the temporary db
+await import('../../index.js');
+
+afterAll(() => {
+    try {
+        fs.rmSync(dbDir, { recursive: true, force: true });
+    } catch {
+        // On Windows the file can't be deleted while dao.js still has its connection open
+    }
+});
 
 describe('WebSocket Integration Tests', () => {
     let activeClient;
