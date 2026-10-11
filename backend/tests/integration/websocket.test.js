@@ -149,4 +149,64 @@ describe('WebSocket Integration Tests', () => {
         });
     });
 
+    describe('Story 2 - Next Customer', () => {
+        it('Call next ticket test', async () => {
+            return new Promise((resolve, reject) => {
+                const client = new WebSocket('ws://localhost:3000');
+
+                client.on('open', () => {
+                    // Create a ticket for Shipping (sId: 1, tag: 'S') so there is a waiting customer
+                    client.send(JSON.stringify({
+                        action: "new_ticket",
+                        sId: 1,
+                        tag: "S"
+                    }));
+                });
+
+                client.on('message', (data) => {
+                    const response = JSON.parse(data.toString());
+
+                    // Ignore welcome message from server
+                    if (response.type === 'benvenuto') return;
+
+                    if (response.type === 'error') {
+                        client.close();
+                        reject(new Error(response.message));
+                    }
+
+                    // When ticket is created, call the next ticket for cId: 1
+                    if (response.type === 'new_ticket') {
+                        client.send(JSON.stringify({
+                            action: "next_ticket",
+                            cId: 1
+                        }));
+                    }
+
+                    // Verify the called ticket response
+                    if (response.type === 'next_ticket') {
+                        try {
+                            expect(response).toHaveProperty('data');
+                            expect(response.data).not.toBeNull();
+                            expect(response.data).toHaveProperty('tId');
+                            expect(response.data).toHaveProperty('code');
+                            expect(response.data).toHaveProperty('serviceName');
+                            expect(response.data.serviceName).toBe('Shipping');
+
+                            client.close();
+                            resolve();
+                        } catch (error) {
+                            client.close();
+                            reject(error);
+                        }
+                    }
+                });
+
+                client.on('error', (err) => {
+                    client.close();
+                    reject(err);
+                });
+            });
+        });
+    });
+
 });
