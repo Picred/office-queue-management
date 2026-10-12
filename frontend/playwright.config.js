@@ -7,6 +7,7 @@ const DB_PATH = path.join(os.tmpdir(), 'oqm-e2e.sqlite')
 
 export default defineConfig({
   testDir: 'tests/e2e',
+  workers: 1,
   use: {
     baseURL: 'http://localhost:5173',
   },
