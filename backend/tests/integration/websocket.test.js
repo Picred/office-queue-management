@@ -22,7 +22,7 @@ describe('WebSocket Integration Tests', () => {
             activeClient.on('message', (data) => {
                 const message = JSON.parse(data.toString());
 
-                // Il server invia un messaggio di benvenuto appena ci si connette
+                // The server sends a welcome message when it connects
                 if (message.type === 'benvenuto') {
                     expect(message.text).toBe("Welcome to the local WebSocket!");
                     resolve();
@@ -149,145 +149,219 @@ describe('WebSocket Integration Tests', () => {
         });
     });
 
-    describe('Story 2 Next Customer', () => {
-        it('Call next ticket test', async () => {
-            return new Promise((resolve, reject) => {
-                const client = new WebSocket('ws://localhost:3000');
+    it('Invalid JSON format test', async () =>{
+        return new Promise((resolve,reject)=> {
+            const client = new WebSocket('ws://localhost:3000')
+            
+            client.on('open', () =>{
+                client.send("invalid json")
+            })
+            
+            client.on('message', (data)=> {
+                const response = JSON.parse(data.toString())
 
-                client.on('open', () => {
-                    // Create a ticket for Shipping (sId: 1, tag: 'S') so there is a waiting customer
-                    client.send(JSON.stringify({
-                        action: "new_ticket",
-                        sId: 1,
-                        tag: "S"
-                    }));
-                });
+               if (response.type === 'benvenuto') return;
 
-                client.on('message', (data) => {
-                    const response = JSON.parse(data.toString());
-
-                    // Ignore welcome message from server
-                    if (response.type === 'benvenuto') return;
-
-                    if (response.type === 'error') {
-                        client.close();
-                        reject(new Error(response.message));
+                if(response.type === 'error'){
+                    try{
+                    expect(response.message).toBe("Invalid JSON format.")
+                    client.close()
+                    resolve()
                     }
-
-                    // When ticket is created, call the next ticket for cId: 1
-                    if (response.type === 'new_ticket') {
-                        client.send(JSON.stringify({
-                            action: "next_ticket",
-                            cId: 1
-                        }));
+                    catch(error){
+                        client.close()
+                        reject(error)
                     }
-
-                    // Verify the called ticket response
-                    if (response.type === 'next_ticket') {
-                        try {
-                            expect(response).toHaveProperty('data');
-                            expect(response.data).not.toBeNull();
-                            expect(response.data).toHaveProperty('tId');
-                            expect(response.data).toHaveProperty('code');
-                            expect(response.data).toHaveProperty('serviceName');
-                            expect(response.data.serviceName).toBe('Shipping');
-
-                            client.close();
-                            resolve();
-                        } catch (error) {
-                            client.close();
-                            reject(error);
-                        }
-                    }
-                });
-
-                client.on('error', (err) => {
-                    client.close();
-                    reject(err);
-                });
-            });
-        });
-
-        it('Call next ticket test with empty queue', async () => {
-            return new Promise((resolve, reject) => {
-                const client = new WebSocket('ws://localhost:3000');
-
-                client.on('open', () => {
-                    // Counter 3 has no waiting tickets
-                    client.send(JSON.stringify({
-                        action: "next_ticket",
-                        cId: 3
-                    }));
-                });
-
-                client.on('message', (data) => {
-                    const response = JSON.parse(data.toString());
-
-                    if (response.type === 'benvenuto') return;
-
-                    if (response.type === 'error') {
-                        client.close();
-                        reject(new Error(response.message));
-                    }
-
-                    if (response.type === 'next_ticket') {
-                        try {
-                            expect(response).toHaveProperty('data');
-                            expect(response.data).toBeNull();
-                            client.close();
-                            resolve();
-                        } catch (error) {
-                            client.close();
-                            reject(error);
-                        }
-                    }
-                });
-
-                client.on('error', (err) => {
-                    client.close();
-                    reject(err);
-                });
-            });
-        });
-
-        it('Call next ticket test with invalid counter id', async () => {
-            return new Promise((resolve, reject) => {
-                const client = new WebSocket('ws://localhost:3000');
-
-                client.on('open', () => {
-                    // Send an invalid non-integer counter id
-                    client.send(JSON.stringify({
-                        action: "next_ticket",
-                        cId: "invalid_id"
-                    }));
-                });
-
-                client.on('message', (data) => {
-                    const response = JSON.parse(data.toString());
-
-                    if (response.type === 'benvenuto') return;
-
-                    if (response.type === 'error') {
-                        try {
-                            expect(response.message).toBe("Invalid counter id.");
-                            client.close();
-                            resolve();
-                        } catch (error) {
-                            client.close();
-                            reject(error);
-                        }
-                    } else if (response.type === 'next_ticket') {
-                        client.close();
-                        reject(new Error("Expected an error but received a ticket instead."));
-                    }
-                });
-
-                client.on('error', (err) => {
-                    client.close();
-                    reject(err);
-                });
+                }
+                else{
+                    client.close()
+                    reject("Expected an error, error not found")
+                }
+                
+            })
+            client.on("error", (err) =>{
+                client.close()
+                reject(err)
             });
         });
     });
 
+
+    it('Unknown service test', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000')
+
+            client.on('open', () => {
+                client.send(JSON.stringify({ "action": "invalid_service_name" }))
+            })
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString())
+
+                if (response.type === 'benvenuto') return;
+
+
+                if (response.type === "error") {
+                    try {
+                        expect(response.message).toBe("Unknown service.")
+                        client.close()
+                        resolve()
+                    }
+                    catch (error) {
+                        client.close()
+                        reject(error)
+                    }
+                }
+                else{
+                    client.close()
+                    reject("Expected an error, error not found")
+                }
+            })
+            client.on("error", (err) =>{
+                client.close()
+                reject(err)
+            })
+        })
+    })
+});
+
+describe('Story 2 Next Customer', () => {
+    it('Call next ticket test', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000');
+
+            client.on('open', () => {
+                // Create a ticket for Shipping (sId: 1, tag: 'S') so there is a waiting customer
+                client.send(JSON.stringify({
+                    action: "new_ticket",
+                    sId: 1,
+                    tag: "S"
+                }));
+            });
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString());
+
+                // Ignore welcome message from server
+                if (response.type === 'benvenuto') return;
+
+                if (response.type === 'error') {
+                    client.close();
+                    reject(new Error(response.message));
+                }
+
+                // When ticket is created, call the next ticket for cId: 1
+                if (response.type === 'new_ticket') {
+                    client.send(JSON.stringify({
+                        action: "next_ticket",
+                        cId: 1
+                    }));
+                }
+
+                // Verify the called ticket response
+                if (response.type === 'next_ticket') {
+                    try {
+                        expect(response).toHaveProperty('data');
+                        expect(response.data).not.toBeNull();
+                        expect(response.data).toHaveProperty('tId');
+                        expect(response.data).toHaveProperty('code');
+                        expect(response.data).toHaveProperty('serviceName');
+                        expect(response.data.serviceName).toBe('Shipping');
+
+                        client.close();
+                        resolve();
+                    } catch (error) {
+                        client.close();
+                        reject(error);
+                    }
+                }
+            });
+
+            client.on('error', (err) => {
+                client.close();
+                reject(err);
+            });
+        });
+    });
+
+    it('Call next ticket test with empty queue', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000');
+
+            client.on('open', () => {
+                // Counter 3 has no waiting tickets
+                client.send(JSON.stringify({
+                    action: "next_ticket",
+                    cId: 3
+                }));
+            });
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString());
+
+                if (response.type === 'benvenuto') return;
+
+                if (response.type === 'error') {
+                    client.close();
+                    reject(new Error(response.message));
+                }
+
+                if (response.type === 'next_ticket') {
+                    try {
+                        expect(response).toHaveProperty('data');
+                        expect(response.data).toBeNull();
+                        client.close();
+                        resolve();
+                    } catch (error) {
+                        client.close();
+                        reject(error);
+                    }
+                }
+            });
+
+            client.on('error', (err) => {
+                client.close();
+                reject(err);
+            });
+        });
+    });
+
+    it('Call next ticket test with invalid counter id', async () => {
+        return new Promise((resolve, reject) => {
+            const client = new WebSocket('ws://localhost:3000');
+
+            client.on('open', () => {
+                // Send an invalid non-integer counter id
+                client.send(JSON.stringify({
+                    action: "next_ticket",
+                    cId: "invalid_id"
+                }));
+            });
+
+            client.on('message', (data) => {
+                const response = JSON.parse(data.toString());
+
+                if (response.type === 'benvenuto') return;
+
+                if (response.type === 'error') {
+                    try {
+                        expect(response.message).toBe("Invalid counter id.");
+                        client.close();
+                        resolve();
+                    } catch (error) {
+                        client.close();
+                        reject(error);
+                    }
+                } else if (response.type === 'next_ticket') {
+                    client.close();
+                    reject(new Error("Expected an error but received a ticket instead."));
+                }
+            });
+
+            client.on('error', (err) => {
+                client.close();
+                reject(err);
+            });
+        });
+    });
 });
