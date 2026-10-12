@@ -1,8 +1,24 @@
-import { describe, it, expect, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { WebSocket } from 'ws';
+import { execFileSync } from 'child_process';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'oqm-test-'));
+process.env.DB_PATH = path.join(dir, 'test.sqlite');
 
-import '../../index.js';
+beforeAll(async () => {
+    execFileSync(process.execPath, ['init-db.js'], { env: process.env });
+    await import('../../index.js');
+});
+
+afterAll(() => {
+    try {
+        fs.rmSync(dir, { recursive: true, force: true });
+    } catch {
+    }
+});
 
 describe('WebSocket Integration Tests', () => {
     let activeClient;
