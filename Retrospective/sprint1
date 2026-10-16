@@ -1,0 +1,103 @@
+TEMPLATE FOR RETROSPECTIVE (Team 3)
+=====================================
+
+The retrospective should include _at least_ the following
+sections:
+
+- [process measures](#process-measures)
+- [quality measures](#quality-measures)
+- [general assessment](#assessment)
+
+## PROCESS MEASURES 
+
+### Macro statistics
+
+- Number of stories committed vs done: 2 committed vs 1 done
+- Total points committed vs done: 5 committed vs 2 done
+- Nr of hours planned vs spent (as a team): 60h budget/75 planned vs 55h 05m spent
+
+**Remember**  a story is done ONLY if it fits the Definition of Done:
+ 
+- Unit Tests passing
+- Code review completed
+- Code present on Git
+- End-to-End tests performed
++
+- Integration tests passing
+
+### Detailed statistics
+
+| Story  | # Tasks | Points | Hours est. | Hours actual |
+|--------|---------|--------|------------|--------------|
+| _#0_   | 5 | - | 23h 30m | 26h |
+| _#1_   | 6 | 3 | 8h 30m | 11h 50m |
+| _#2_   | 10 | 3 | 42h | 17h 15m |
+
+
+
+- Hours per task average, standard deviation (estimate and actual)
+
+| | Mean | StDev |
+|------------|------|-------|
+| Estimation | 13.515 | 13.108 | 
+| Actual     | 9.443 | 12.013 |
+
+- Total estimation error ratio: sum of total hours spent / sum of total hours effort - 1
+
+    $$\frac{\sum_i spent_{task_i}}{\sum_i estimation_{task_i}} - 1 = -0.270$$
+    
+- Absolute relative task estimation error: sum( abs( spent-task-i / estimation-task-i - 1))/n
+
+    $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_task_i}-1 \right| = -0.143 $$
+   
+
+  
+## QUALITY MEASURES 
+
+- Unit Testing:
+  - Total hours estimated: 7h
+  - Total hours spent: 6h 10m
+  - Nr of automated unit test cases: 
+  - Coverage:
+- E2E testing:
+  - Total hours estimated: 5h
+  - Total hours spent: 2h 45m
+  - Nr of test cases:
+- Code review 
+  - Total hours estimated: 6h  
+  - Total hours spent: 1h 20m  
+
+
+## ASSESSMENT
+
+- What caused your errors in estimation (if any)?
+
+We overestimated a lot of tasks, especially the businness logic implementation and testing ones, because we didn't precisely understood how to implement it before starting it.
+
+- What lessons did you learn (both positive and negative) in this sprint?
+
+We have to be more flexible in taking/switching tasks between us.
+
+We should better manage branches and the whole skeleton of the project.
+
+There is good communication and support between each other.
+
+- Which improvement goals set in the previous retrospective were you able to achieve? 
+
+N/A
+
+- Which ones you were not able to achieve? Why?
+
+N/A
+
+- Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
+
+1 Plan only the total budget: calibrate looking back at the previous sprint what was the reality for similar tasks
+
+2 Consume the total budget: be more flexible on the assignment of tasks according to their priority and workers availability
+
+3 Better management of the github repo: create less and more manageable branches
+
+- One thing you are proud of as a Team!!
+
+Optimal team sinergy and reciprocal help
