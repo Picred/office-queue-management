@@ -1,4 +1,4 @@
-TEMPLATE FOR RETROSPECTIVE (Team 3)
+SPRINT RETROSPECTIVE (Team 3)
 =====================================
 
 The retrospective should include _at least_ the following
@@ -91,11 +91,11 @@ N/A
 
 - Improvement goals for the next sprint and how to achieve them (technical tasks, team coordination, etc.)
 
-1 Plan only the total budget: calibrate looking back at the previous sprint what was the reality for similar tasks
+1 - Plan only the total budget: calibrate looking back at the previous sprint what was the reality for similar tasks
 
-2 Consume the total budget: be more flexible on the assignment of tasks according to their priority and workers availability
+2 - Consume the total budget: be more flexible on the assignment of tasks according to their priority and workers availability
 
-3 Better management of the github repo: create less and more manageable branches
+3 - Better management of the github repo: create less and more manageable branches
 
 - One thing you are proud of as a Team!!
 
