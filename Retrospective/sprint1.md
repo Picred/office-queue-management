@@ -22,7 +22,6 @@ sections:
 - Code review completed
 - Code present on Git
 - End-to-End tests performed
-+
 - Integration tests passing
 
 ### Detailed statistics
@@ -48,7 +47,7 @@ sections:
     
 - Absolute relative task estimation error: sum( abs( spent-task-i / estimation-task-i - 1))/n
 
-    $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_task_i}-1 \right| = 0,304 $$
+    $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_task_i}-1 \right| = 0.304 $$
    
 
   
