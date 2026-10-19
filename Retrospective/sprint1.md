@@ -30,7 +30,7 @@ sections:
 | Story  | # Tasks | Points | Hours est. | Hours actual |
 |--------|---------|--------|------------|--------------|
 | _#0_   | 5 | - | 23h 30m | 26h |
-| _#1_   | 6 | 3 | 8h 30m | 11h 50m |
+| _#1_   | 6 | 2 | 8h 30m | 11h 50m |
 | _#2_   | 10 | 3 | 42h | 17h 15m |
 
 
@@ -39,8 +39,8 @@ sections:
 
 | | Mean | StDev |
 |------------|------|-------|
-| Estimation | 13.515 | 13.108 | 
-| Actual     | 9.443 | 12.013 |
+| Estimation | 3.60 | 3.40 | 
+| Actual     | 2.62 | 3.42 |
 
 - Total estimation error ratio: sum of total hours spent / sum of total hours effort - 1
 
@@ -48,7 +48,7 @@ sections:
     
 - Absolute relative task estimation error: sum( abs( spent-task-i / estimation-task-i - 1))/n
 
-    $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_task_i}-1 \right| = -0.143 $$
+    $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_task_i}-1 \right| = 0,304 $$
    
 
   
@@ -72,7 +72,7 @@ sections:
 
 - What caused your errors in estimation (if any)?
 
-We overestimated a lot of tasks, especially the businness logic implementation and testing ones, because we didn't precisely understood how to implement it before starting it.
+We overestimated a lot of tasks, especially the business logic implementation and testing ones, because we didn’t precisely understand how to implement it before starting it.
 
 - What lessons did you learn (both positive and negative) in this sprint?
 
@@ -100,4 +100,4 @@ N/A
 
 - One thing you are proud of as a Team!!
 
-Optimal team sinergy and reciprocal help
+Optimal team synergy and reciprocal help
